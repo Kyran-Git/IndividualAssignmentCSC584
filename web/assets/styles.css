@@ -1,5 +1,3 @@
-
-
 /* Universal box-sizing for consistent element sizing */
 * {
   box-sizing: border-box;
@@ -14,8 +12,8 @@ html, body {
 body {
   margin: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #0f172a; /* slate-900 dark blue-gray */
-  color: #e5e7eb; /* gray-200 light gray text */
+  background: #0f172a; /* dark blue-gray */
+  color: #e5e7eb; /* light gray text */
 }
 
 /* Links: Light blue color, no underline */
@@ -68,35 +66,73 @@ a {
   transform: translateY(0);
 }
 
-/* Pill Button: Rounded button with border, used for primary CTAs */
-.pill-btn {
-  display: inline-block;
-  margin-top: 22px;
-  padding: 12px 28px;
+/* Pill Button: Rounded button with border */
+/* replaced with a reusable button base so primary & secondary match sizing */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px; /* fixed height to keep buttons same size */
+  padding: 0 22px; /* left/right padding only; vertical sizing handled by height */
   border-radius: 999px;
-  border: 2px solid #93c5fd;
-  color: #e5e7eb;
-  background: transparent;
   cursor: pointer;
   font-weight: 600;
   letter-spacing: .3px;
+  font-size: .95rem;
+  line-height: 1;
+  vertical-align: middle;
+  transition: background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* keep the original pill-btn class for landing animation hooks (margin, opacity/transform transitions) */
+.pill-btn {
+  /* visual defaults delegated to the .btn base + variant rules below */
+  margin-top: 22px;
   opacity: 0;
   transform: translateY(8px);
   transition: opacity .6s ease .3s, transform .6s ease .3s, background .2s ease, color .2s ease, border-color .2s ease;
 }
 
-/* Pill Button - Visible State: Faded in with delay */
+/* Visible state for the landing pill */
 .pill-btn.show {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* Pill Button - Hover State: Filled background with inverted colors */
-.pill-btn:hover {
+/* Primary variant: uses the blue outline/default fill on hover */
+.btn-primary {
+  /* inherit base look */
+  border: 2px solid #93c5fd;
+  color: #e5e7eb;
+  background: transparent;
+}
+
+.btn-primary:hover {
   background: #93c5fd;
   color: #0f172a;
   border-color: #93c5fd;
 }
+
+/* Secondary variant: subtle outlined style but same size/shape */
+.btn-secondary {
+  border: 2px solid #64748b;
+  color: #e2e8f0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0 22px; /* match base horizontal padding */
+}
+
+.btn-secondary:hover {
+  background: #334155;
+}
+
+/* example usage:
+   <button class="btn btn-primary">Start</button>
+   <button class="btn btn-secondary">Cancel</button>
+*/
+
 
 /* Fade Out Animation: Used when transitioning away from hero */
 .fade-out {
@@ -207,9 +243,7 @@ a {
   color: #e2e8f0;
   background: transparent;
   border-radius: 999px;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: background .2s ease, color .2s ease;
+  padding: 0 22px; /* match base horizontal padding */
 }
 
 /* Button Secondary - Hover State: Darker background */
@@ -343,4 +377,3 @@ a {
   margin: 24px auto;
   text-align: center;
 }
-
