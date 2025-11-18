@@ -92,8 +92,8 @@
 
           <!-- Action Buttons -->
           <div class="row-actions">
-            <button class="pill-btn show" type="submit">Save Student</button>
-            <a class="btn-secondary" href="ListStudent">Display All</a>
+            <button class="btn btn-primary pill-btn show" type="submit">Save Student</button>
+            <a class="btn btn-secondary" href="ListStudent">Display All</a>
           </div>
         </form>
 
