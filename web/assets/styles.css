@@ -84,6 +84,11 @@ a {
   vertical-align: middle;
   transition: background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
   -webkit-font-smoothing: antialiased;
+  -webkit-appearance: none; /* remove native styles on iOS/Safari */
+  appearance: none;
+  background: transparent; /* variants can override */
+  border: none; /* variants reintroduce border */
+  white-space: nowrap; /* prevent multi-line labels that change height */
 }
 
 /* keep the original pill-btn class for landing animation hooks (margin, opacity/transform transitions) */
@@ -230,25 +235,6 @@ a {
   align-items: center;
   gap: 12px;
   margin-top: 10px;
-}
-
-/* Button Primary: Inherits from pill-btn styles */
-.btn-primary {
-  composes: pill-btn;
-}
-
-/* Button Secondary: Outlined button with subtle style */
-.btn-secondary {
-  border: 2px solid #64748b;
-  color: #e2e8f0;
-  background: transparent;
-  border-radius: 999px;
-  padding: 0 22px; /* match base horizontal padding */
-}
-
-/* Button Secondary - Hover State: Darker background */
-.btn-secondary:hover {
-  background: #334155;
 }
 
 /* Error Message: Red text for validation errors */
