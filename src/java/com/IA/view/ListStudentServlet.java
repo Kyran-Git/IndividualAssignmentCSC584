@@ -1,86 +1,91 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.IA.view;
 
+import com.IA.model.Student;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * ListStudentServlet - Displays all registered students in a formatted view.
+
+ * URL Mapping: /ListStudent (configured in web.xml)
+ * View: displayAll.jsp
  *
  * @author nikla
+ * @version 1.0
+ * @since 2025-11-18
  */
 public class ListStudentServlet extends HttpServlet {
 
     /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
+     * Handles HTTP GET requests to display the list of all students.
      *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ListStudent</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ListStudent at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
+     * This method performs the following operations:
+     * 1. Retrieves the ServletContext to access shared data
+     * 2. Attempts to retrieve the existing students list from application scope
+     * 3. If no list exists (first access), creates a new thread-safe empty list
+     * 4. Stores the list in request scope so the JSP can access it
+     * 5. Forwards the request to displayAll.jsp for rendering
+     *
+     * The servlet ensures a list always exists in application scope, even if empty,
+     * so the JSP can safely iterate over it without null checks.
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        // ===== RETRIEVE STUDENT LIST FROM APPLICATION SCOPE =====
+        // Get the ServletContext which holds app-wide shared data
+        ServletContext app = getServletContext();
+
+        // Attempt to retrieve the students list from servlet context
+        @SuppressWarnings("unchecked")
+        List<Student> list = (List<Student>) app.getAttribute("students");
+
+        // ===== INITIALIZE LIST IF IT DOESN'T EXIST =====
+        // If this is the first time accessing the list create a new thread-safe synchronized list
+        if (list == null) {
+            // This prevents concurrent (same time) modification issues when multiple users access it
+            list = Collections.synchronizedList(new ArrayList<Student>());
+
+            // Store the new list in servlet context for future requests
+            app.setAttribute("students", list);
+        }
+
+        // ===== FORWARD TO JSP FOR RENDERING =====
+        // Place the list in request scope/servlet context so the JSP can access it
+        // The JSP will read over this list to display student cards
+        request.setAttribute("students", list);
+
+        // Forward to the JSP page that renders the student list
+        // Using forward (not redirect) preserves the request attributes
+        RequestDispatcher rd = request.getRequestDispatcher("/displayAll.jsp");
+        rd.forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
+     * Returns a brief description of this servlet.
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "ListStudentServlet - Retrieves and displays all registered students";
+    }
 }
