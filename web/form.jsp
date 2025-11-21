@@ -3,6 +3,7 @@
 <%
   // Retrieve validation error and form values from request attributes
   String err = (String) request.getAttribute("error");
+  String success = (String) request.getAttribute("success");
   String nameVal = (String) request.getAttribute("name");
   String idVal = (String) request.getAttribute("studentId");
   String programVal = (String) request.getAttribute("program");
@@ -20,6 +21,12 @@
     <title>Add Student</title>
     <link rel="stylesheet" href="assets/styles.css" />
     <script defer src="assets/app.js"></script>
+  <script>
+      const successMessage = "<%= success %>";
+      if (successMessage && successMessage !== "null") {
+        alert(successMessage);
+      }
+    </script>
   </head>
 
   <body>
@@ -92,7 +99,7 @@
 
           <!-- Action Buttons -->
           <div class="row-actions">
-            <button class="btn btn-primary pill-btn show" type="submit">Save Student</button>
+            <button class="btn btn-primary" type="submit">Save Student</button>
             <a class="btn btn-secondary" href="ListStudent">Display All</a>
           </div>
         </form>
