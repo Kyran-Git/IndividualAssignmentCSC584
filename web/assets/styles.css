@@ -1,365 +1,308 @@
-/* Universal box-sizing for consistent element sizing */
+/* web/assets/styles.css */
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
-/* Full height for html and body */
 html, body {
-  height: 100%;
+    height: 100%;
 }
 
-/* Body: Main container with dark theme background and light text */
+/* Body: light background with dark text */
 body {
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  background: #0f172a; /* dark blue-gray */
-  color: #e5e7eb; /* light gray text */
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: #F0ECE5; /* light */
+    color: #161A30; /* dark */
 }
 
-/* Links: Light blue color, no underline */
+/* Links: muted indigo */
 a {
-  color: #93c5fd;
-  text-decoration: none;
+    color: #31304D;
+    text-decoration: none;
 }
 
-/* Container: Max-width wrapper with padding */
+/* Container */
 .container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
 }
 
-/* Center: Flexbox utility for centering content */
+/* Center utility */
 .center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-
-/* ============================================
-   Landing page
-   Elements: .hero, .hero-title, .pill-btn
-   ============================================ */
-
-/* Hero: Full-viewport height container, centered content */
+/* Landing page */
 .hero {
-  height: 100vh;
-  display: grid;
-  place-items: center;
-  text-align: center;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    text-align: center;
 }
 
-/* Hero Title: Large responsive heading with fade-in animation */
 .hero-title {
-  font-size: clamp(2.2rem, 6vw, 4.5rem);
-  line-height: 1.1;
-  letter-spacing: 1px;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity .9s ease, transform .9s ease;
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: 1px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .9s ease, transform .9s ease;
 }
 
-/* Hero Title - Visible State: Faded in and moved up */
 .hero-title.show {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* Pill Button: Rounded button with border */
-/* replaced with a reusable button base so primary & secondary match sizing */
+/* Button base */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  height: 44px; /* fixed height to keep buttons same size */
-  padding: 0 22px; /* left/right padding only; vertical sizing handled by height */
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-  letter-spacing: .3px;
-  font-size: .95rem;
-  line-height: 1;
-  vertical-align: middle;
-  transition: background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
-  -webkit-font-smoothing: antialiased;
-  -webkit-appearance: none; /* remove native styles on iOS/Safari */
-  appearance: none;
-  background: transparent; /* variants can override */
-  border: none; /* variants reintroduce border */
-  white-space: nowrap; /* prevent multi-line labels that change height */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: .3px;
+    font-size: .95rem;
+    line-height: 1;
+    vertical-align: middle;
+    transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+    -webkit-font-smoothing: antialiased;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    border: none;
+    white-space: nowrap;
 }
 
-/* keep the original pill-btn class for landing animation hooks (margin, opacity/transform transitions) */
 .pill-btn {
-  /* visual defaults delegated to the .btn base + variant rules below */
-  margin-top: 22px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity .6s ease .3s, transform .6s ease .3s, background .2s ease, color .2s ease, border-color .2s ease;
+    margin-top: 22px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .6s ease .3s, transform .6s ease .3s, background .2s ease, color .2s ease, border-color .2s ease;
 }
 
-/* Visible state for the landing pill */
 .pill-btn.show {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* Primary variant: uses the blue outline/default fill on hover */
+/* Primary: filled indigo for light theme */
 .btn-primary {
-  /* inherit base look */
-  border: 2px solid #93c5fd;
-  color: #e5e7eb;
-  background: transparent;
+    background: #31304D; /* indigo */
+    color: #F0ECE5; /* light */
+    border: 1px solid rgba(49,48,77,.06);
+    box-shadow: 0 6px 18px rgba(49,48,77,.08);
 }
 
 .btn-primary:hover {
-  background: #93c5fd;
-  color: #0f172a;
-  border-color: #93c5fd;
+    background: #25233a; /* slightly darker hover */
+    color: #F0ECE5;
+    transform: translateY(-1px);
 }
 
-/* Secondary variant: subtle outlined style but same size/shape */
+/* Secondary: subtle outline on light background */
 .btn-secondary {
-  border: 2px solid #64748b;
-  color: #e2e8f0;
-  background: transparent;
-  border-radius: 999px;
-  padding: 0 22px; /* match base horizontal padding */
+    border: 1px solid #B6BBC4; /* mid */
+    color: #161A30;
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 0 22px;
+    box-shadow: 0 4px 12px rgba(22,26,48,.04);
 }
 
 .btn-secondary:hover {
-  background: #334155;
+    background: #F0ECE5;
+    color: #161A30;
 }
 
-/* example usage:
-   <button class="btn btn-primary">Start</button>
-   <button class="btn btn-secondary">Cancel</button>
-*/
-
-
-/* Fade Out Animation: Used when transitioning away from hero */
+/* Fade out */
 .fade-out {
-  animation: fadeOut .45s ease forwards;
+    animation: fadeOut .45s ease forwards;
 }
 
 @keyframes fadeOut {
-  to {
-    opacity: 0;
-    transform: scale(.98);
-  }
+    to {
+        opacity: 0;
+        transform: scale(.98);
+    }
 }
 
-
-/* ============================================
-   FORM PAGE
-   Elements: .page, .form-card, .form-grid,
-   .label, .input, .textarea, select, .row-actions
-   ============================================ */
-
-/* Page: Full-viewport centered container for form */
+/* FORM PAGE */
 .page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
 }
 
-/* Form Card: Elevated card container with reveal animation */
+/* Form card: light background with subtle border */
 .form-card {
-  width: min(780px, 92vw);
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity .6s ease, transform .6s ease;
+    width: min(780px, 92vw);
+    background: #ffffff; /* white for light theme */
+    border: 1px solid #E6E9EC; /* very light border */
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(49,48,77,.06);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .6s ease, transform .6s ease;
 }
 
-/* Form Card - Visible State: Revealed with fade-in */
 .form-card.show {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
 
-/* Form Grid: Two-column responsive grid layout for form fields */
 .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
 }
 
-/* Form Grid - Full Width: Span both columns for larger inputs */
 .form-grid .full {
-  grid-column: 1 / -1;
+    grid-column: 1 / -1;
 }
 
-/* Label: Form field labels with consistent spacing */
 .label {
-  display: block;
-  margin: 6px 0 6px;
-  color: #cbd5e1;
-  font-size: .95rem;
+    display: block;
+    margin: 6px 0 6px;
+    color: #161A30;
+    font-size: .95rem;
 }
 
-/* Input, Textarea, Select: Styled form inputs with dark theme */
+/* Inputs: white background with mid-gray border, indigo focus */
 .input, .textarea, select {
-  width: 100%;
-  color: #e5e7eb;
-  background: #0b1220;
-  border: 1px solid #283548;
-  border-radius: 10px;
-  padding: 10px 12px;
-  outline: none;
-  transition: border-color .2s ease, box-shadow .2s ease;
+    width: 100%;
+    color: #161A30;
+    background: #ffffff;
+    border: 1px solid #B6BBC4;
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
 }
 
-/* Input Focus State: Blue border and glow effect */
 .input:focus, .textarea:focus, select:focus {
-  border-color: #93c5fd;
-  box-shadow: 0 0 0 3px rgba(147,197,253,.18);
+    border-color: #31304D;
+    box-shadow: 0 6px 20px rgba(49,48,77,.06);
 }
 
-/* Textarea: Multi-line input with minimum height */
 .textarea {
-  min-height: 110px;
-  resize: vertical;
+    min-height: 110px;
+    resize: vertical;
 }
 
-/* Row Actions: Horizontal layout for action buttons */
 .row-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
 }
 
-/* Error Message: Red text for validation errors */
+/* Error: keep semantic red for visibility */
 .error {
-  color: #fecaca;
-  font-size: .9rem;
-  margin-top: 4px;
+    color: #fecaca;
+    font-size: .9rem;
+    margin-top: 4px;
 }
 
-
-/* ============================================
-   Display page
-   Elements: .header, .cards-wrapper, .cards,
-   .card, .meta, .tags, .tag
-   ============================================ */
-
-/* Header: Top navigation bar with title and action button */
+/* DISPLAY PAGE */
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 20px auto;
-  width: min(1100px, 92vw);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px auto;
+    width: min(1100px, 92vw);
 }
 
-/* Header Title: Responsive heading */
 .header h1 {
-  margin: 0;
-  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    margin: 0;
+    font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    color: #161A30;
 }
 
-/* Cards Wrapper: Container for card grid with max width */
 .cards-wrapper {
-  width: min(1100px, 92vw);
-  margin: 0 auto 28px;
+    width: min(1100px, 92vw);
+    margin: 0 auto 28px;
 }
 
-/* Cards Grid: Auto-fit responsive grid with scrolling after 70vh */
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding-right: 4px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    padding-right: 4px;
 }
 
-/* Card: Individual student information card */
+/* Card: white background with subtle border and indigo accents (light theme) */
 .card {
-  background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    background: #ffffff; /* white */
+    border: 1px solid #E6E9EC; /* very light border */
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 6px 20px rgba(49,48,77,.05);
 }
 
-/* Card Heading: Student name title */
 .card h3 {
-  margin: 0 0 6px;
-  font-size: 1.1rem;
-  color: #f3f4f6;
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    color: #161A30; /* dark text */
 }
 
-/* Card Meta: Secondary information (ID, program, email) */
 .card .meta {
-  font-size: .9rem;
-  color: #cbd5e1;
+    font-size: .9rem;
+    color: #31304D; /* indigo for meta */
 }
 
-/* Tags Container: Flexbox wrapper for hobby tags */
 .tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
 }
 
-/* Tag: Individual hobby pill badge */
+/* Tags: indigo pills to stand out on light cards */
 .tag {
-  background: #1f2937;
-  color: #cbd5e1;
-  border: 1px solid #334155;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: .8rem;
+    background: #31304D; /* indigo */
+    color: #F0ECE5; /* light */
+    border: 1px solid rgba(49,48,77,.06);
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: .8rem;
 }
 
-
-/* ============================================
-   EMPTY STATE
-   Elements: .empty
-   ============================================ */
-
-/* Empty State: Message displayed when no students exist */
+/* EMPTY STATE */
 .empty {
-  width: min(680px, 92vw);
-  margin: 10vh auto;
-  text-align: center;
-  background: #111827;
-  border: 1px dashed #374151;
-  border-radius: 18px;
-  padding: 32px;
-  color: #cbd5e1;
+    width: min(680px, 92vw);
+    margin: 10vh auto;
+    text-align: center;
+    background: #ffffff; /* white */
+    border: 1px dashed #B6BBC4; /* mid */
+    border-radius: 18px;
+    padding: 32px;
+    color: #161A30; /* dark */
+    box-shadow: 0 8px 22px rgba(49,48,77,.04);
 }
 
-/* Empty State Heading */
 .empty h2 {
-  margin: 0 0 10px;
-  font-size: clamp(1.4rem, 3.5vw, 2rem);
+    margin: 0 0 10px;
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
 }
 
-/* Empty State Paragraph */
 .empty p {
-  margin: 0 0 18px;
+    margin: 0 0 18px;
 }
 
-
-/* ============================================
-   FOOTER
-   Elements: .footer-links
-   ============================================ */
-
-/* Footer Links: Centered navigation links at page bottom */
+/* FOOTER */
 .footer-links {
-  width: min(1100px, 92vw);
-  margin: 24px auto;
-  text-align: center;
+    width: min(1100px, 92vw);
+    margin: 24px auto;
+    text-align: center;
+    color: #31304D; /* use indigo for footer links */
 }
