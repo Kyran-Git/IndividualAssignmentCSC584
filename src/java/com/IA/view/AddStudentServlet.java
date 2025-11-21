@@ -127,8 +127,9 @@ public class AddStudentServlet extends HttpServlet {
         }
 
         // ===== REDIRECT TO LIST VIEW =====
-        
-        response.sendRedirect(request.getContextPath() + "/ListStudent");
+        request.setAttribute("success", "Student saved successfully!");
+        RequestDispatcher rd = request.getRequestDispatcher("/form.jsp");
+        rd.forward(request, response);
     }
 
     /**
