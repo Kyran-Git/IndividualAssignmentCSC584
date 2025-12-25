@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Introduce Yourself</title>
+    <title>Student Profile Management System</title>
     <link rel="stylesheet" href="assets/styles.css" />
     <script defer src="assets/app.js"></script>
   </head>
@@ -12,12 +12,30 @@
   <body>
     <main class="hero">
       <div>
-        <h1 class="hero-title">Student Management System</h1>
+        <h1 class="hero-title">Student Profile Management System</h1>
+        <p style="color: #9ca3af; margin-bottom: 2rem; text-align: center; max-width: 600px;">
+          Comprehensive student profile management with personal info, academic records, and interests
+        </p>
         <div style="display: flex; gap: 1rem; flex-direction: column; align-items: center;">
-          <button class="btn btn-primary pill-btn" data-href="form.jsp" aria-label="Add Student">Add Student Profile</button>
-          <a href="ListStudent" class="btn btn-primary pill-btn" style="text-decoration: none;">View Student Profiles</a>
-          <a href="Profile" class="btn btn-secondary pill-btn" style="text-decoration: none;">Add User Profile</a>
-          <a href="ViewProfiles" class="btn btn-secondary pill-btn" style="text-decoration: none;">View User Profiles</a>
+          <a href="form.jsp" class="btn btn-primary pill-btn" style="text-decoration: none;">
+            ➕ Add New Student Profile
+          </a>
+          <a href="viewProfiles.jsp" class="btn btn-primary pill-btn" style="text-decoration: none;">
+            📋 View All Profiles
+          </a>
+          <a href="ListStudent" class="btn btn-secondary pill-btn" style="text-decoration: none;">
+            🔍 Advanced Search & Filter
+          </a>
+        </div>
+        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(59, 130, 246, 0.1); border-radius: 0.5rem; max-width: 600px;">
+          <h3 style="margin: 0 0 0.75rem 0; color: #3b82f6;">Features</h3>
+          <ul style="color: #6b7280; text-align: left; margin: 0; padding-left: 1.5rem;">
+            <li>Complete student profiles with personal & academic info</li>
+            <li>Search by name or student ID</li>
+            <li>Filter by program or hobbies</li>
+            <li>Edit and delete profiles</li>
+            <li>Track GPA, contact info, and interests</li>
+          </ul>
         </div>
       </div>
     </main>
