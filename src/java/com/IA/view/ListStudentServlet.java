@@ -2,8 +2,8 @@
 package com.IA.view;
 
 import com.IA.model.Student;
-import com.IA.model.StudentDAO;
 import java.io.IOException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
@@ -46,27 +46,63 @@ public class ListStudentServlet extends HttpServlet {
         List<Student> students = new ArrayList<>();
 
         try {
+            Connection conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+
             // Perform search/filter based on parameters
             if (searchType != null && searchQuery != null &&
                 !searchType.trim().isEmpty() && !searchQuery.trim().isEmpty()) {
 
                 searchQuery = searchQuery.trim();
+                PreparedStatement pstmt;
 
                 switch (searchType.toLowerCase()) {
                     case "name":
-                        students = StudentDAO.searchByName(searchQuery);
+                        String sql = "SELECT * FROM STUDENT WHERE UPPER(FIRST_NAME) LIKE ? OR UPPER(LAST_NAME) LIKE ? ORDER BY LAST_NAME, FIRST_NAME";
+                        pstmt = conn.prepareStatement(sql);
+                        String searchTerm = "%" + searchQuery.toUpperCase() + "%";
+                        pstmt.setString(1, searchTerm);
+                        pstmt.setString(2, searchTerm);
+                        ResultSet rs = pstmt.executeQuery();
+                        while (rs.next()) {
+                            students.add(mapResultSetToStudent(rs));
+                        }
                         break;
                     case "studentid":
-                        students = StudentDAO.searchByStudentId(searchQuery);
+                        sql = "SELECT * FROM STUDENT WHERE UPPER(STUDENT_ID) LIKE ? ORDER BY STUDENT_ID";
+                        pstmt = conn.prepareStatement(sql);
+                        searchTerm = "%" + searchQuery.toUpperCase() + "%";
+                        pstmt.setString(1, searchTerm);
+                        rs = pstmt.executeQuery();
+                        while (rs.next()) {
+                            students.add(mapResultSetToStudent(rs));
+                        }
                         break;
                     case "program":
-                        students = StudentDAO.filterByProgram(searchQuery);
+                        sql = "SELECT * FROM STUDENT WHERE UPPER(PROGRAM) LIKE ? ORDER BY PROGRAM, LAST_NAME, FIRST_NAME";
+                        pstmt = conn.prepareStatement(sql);
+                        pstmt.setString(1, "%" + searchQuery.toUpperCase() + "%");
+                        rs = pstmt.executeQuery();
+                        while (rs.next()) {
+                            students.add(mapResultSetToStudent(rs));
+                        }
                         break;
                     case "hobby":
-                        students = StudentDAO.filterByHobby(searchQuery);
+                        sql = "SELECT * FROM STUDENT WHERE UPPER(HOBBIES) LIKE ? ORDER BY LAST_NAME, FIRST_NAME";
+                        pstmt = conn.prepareStatement(sql);
+                        pstmt.setString(1, "%" + searchQuery.toUpperCase() + "%");
+                        rs = pstmt.executeQuery();
+                        while (rs.next()) {
+                            students.add(mapResultSetToStudent(rs));
+                        }
                         break;
                     default:
-                        students = StudentDAO.getAllStudents();
+                        sql = "SELECT * FROM STUDENT ORDER BY ID";
+                        Statement stmt = conn.createStatement();
+                        rs = stmt.executeQuery(sql);
+                        while (rs.next()) {
+                            students.add(mapResultSetToStudent(rs));
+                        }
                 }
 
                 // Store search parameters for display
@@ -74,8 +110,15 @@ public class ListStudentServlet extends HttpServlet {
                 request.setAttribute("searchQuery", searchQuery);
             } else {
                 // No search - get all students
-                students = StudentDAO.getAllStudents();
+                String sql = "SELECT * FROM STUDENT ORDER BY ID";
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                    students.add(mapResultSetToStudent(rs));
+                }
             }
+
+            conn.close();
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Error retrieving students: " + e.getMessage());
@@ -101,5 +144,31 @@ public class ListStudentServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "ListStudentServlet - Retrieves and displays students from database with search/filter support";
+    }
+
+    /** Helper method to map ResultSet to Student object */
+    private static Student mapResultSetToStudent(ResultSet rs) throws SQLException {
+        Student student = new Student();
+        student.setId(rs.getInt("ID"));
+        student.setFirstName(rs.getString("FIRST_NAME"));
+        student.setLastName(rs.getString("LAST_NAME"));
+        student.setStudentId(rs.getString("STUDENT_ID"));
+        student.setProgram(rs.getString("PROGRAM"));
+        student.setEmail(rs.getString("EMAIL"));
+        student.setPhone(rs.getString("PHONE"));
+        student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+        student.setAddress(rs.getString("ADDRESS"));
+        student.setGpa(rs.getDouble("GPA"));
+        student.setHobbies(stringToArray(rs.getString("HOBBIES")));
+        student.setSelfIntro(rs.getString("SELF_INTRO"));
+        return student;
+    }
+
+    /** Helper method to convert comma-separated string to array */
+    private static String[] stringToArray(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return new String[0];
+        }
+        return str.split(",");
     }
 }
