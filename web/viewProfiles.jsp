@@ -1,10 +1,48 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@page import="java.util.*, com.IA.model.Student, com.IA.model.StudentDAO"%>
+<%@page import="java.util.*, java.sql.*, com.IA.model.Student"%>
 
 <%
-    // Retrieve all students from database
-    List<Student> profiles = StudentDAO.getAllStudents();
+    // Retrieve all students from database using direct JDBC
+    List<Student> profiles = new ArrayList<>();
+    try {
+        Class.forName("org.apache.derby.jdbc.ClientDriver");
+        Connection conn = DriverManager.getConnection(
+            "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+
+        String sql = "SELECT * FROM STUDENT ORDER BY ID";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+
+        while (rs.next()) {
+            Student student = new Student();
+            student.setId(rs.getInt("ID"));
+            student.setFirstName(rs.getString("FIRST_NAME"));
+            student.setLastName(rs.getString("LAST_NAME"));
+            student.setStudentId(rs.getString("STUDENT_ID"));
+            student.setProgram(rs.getString("PROGRAM"));
+            student.setEmail(rs.getString("EMAIL"));
+            student.setPhone(rs.getString("PHONE"));
+            student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+            student.setAddress(rs.getString("ADDRESS"));
+            student.setGpa(rs.getDouble("GPA"));
+
+            // Parse hobbies from comma-separated string
+            String hobbiesStr = rs.getString("HOBBIES");
+            String[] hobbies = new String[0];
+            if (hobbiesStr != null && !hobbiesStr.trim().isEmpty()) {
+                hobbies = hobbiesStr.split(",");
+            }
+            student.setHobbies(hobbies);
+
+            student.setSelfIntro(rs.getString("SELF_INTRO"));
+            profiles.add(student);
+        }
+        conn.close();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
     String error = request.getParameter("error");
     String success = request.getParameter("success");
 %>
