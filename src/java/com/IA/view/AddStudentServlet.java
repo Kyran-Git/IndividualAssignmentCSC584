@@ -6,9 +6,8 @@
 package com.IA.view;
 
 import com.IA.model.Student;
-import com.IA.model.StudentDAO;
 import java.io.IOException;
-import java.sql.Date;
+import java.sql.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,24 +38,20 @@ public class AddStudentServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        // Personal Information
         String firstName = safe(request.getParameter("firstName"));
         String lastName = safe(request.getParameter("lastName"));
         String phone = safe(request.getParameter("phone"));
         String dobStr = request.getParameter("dateOfBirth");
         String address = safe(request.getParameter("address"));
 
-        // Academic Information
         String studentId = safe(request.getParameter("studentId"));
         String program = safe(request.getParameter("program"));
         String email = safe(request.getParameter("email"));
         String gpaStr = request.getParameter("gpa");
 
-        // Interests
         String[] hobbies = request.getParameterValues("hobbies");
         String selfIntro = safe(request.getParameter("selfIntro"));
 
-        // Validation - Check required fields
         if (isBlank(firstName) || isBlank(lastName) || isBlank(studentId) ||
             isBlank(program) || isBlank(email)) {
 
@@ -69,7 +64,6 @@ public class AddStudentServlet extends HttpServlet {
             return;
         }
 
-        // Data normalization
         if (hobbies == null) {
             hobbies = new String[0];
         }
@@ -77,7 +71,6 @@ public class AddStudentServlet extends HttpServlet {
             hobbies[i] = hobbies[i] == null ? null : hobbies[i].trim();
         }
 
-        // Parse optional fields
         Date dateOfBirth = null;
         if (dobStr != null && !dobStr.isEmpty()) {
             try {
@@ -114,25 +107,66 @@ public class AddStudentServlet extends HttpServlet {
             }
         }
 
-        // Create Student object with unified model
         Student student = new Student(firstName, lastName, studentId, program, email,
                                     phone, dateOfBirth, address, gpa, hobbies, selfIntro);
 
-        // Save to database
+ 
         try {
-            if (StudentDAO.insertStudent(student)) {
-                // Task 5: Redirect to profile.jsp to display submitted profile details after saving
-                // Retrieve the saved student (to get the generated ID)
-                Student savedStudent = StudentDAO.getStudentByStudentId(studentId);
-                if (savedStudent != null) {
+            Connection conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+
+            String sql = "INSERT INTO STUDENT (FIRST_NAME, LAST_NAME, STUDENT_ID, PROGRAM, EMAIL, " +
+                         "PHONE, DATE_OF_BIRTH, ADDRESS, GPA, HOBBIES, SELF_INTRO) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, student.getFirstName());
+            stmt.setString(2, student.getLastName());
+            stmt.setString(3, student.getStudentId());
+            stmt.setString(4, student.getProgram());
+            stmt.setString(5, student.getEmail());
+            stmt.setString(6, student.getPhone());
+            stmt.setDate(7, student.getDateOfBirth());
+            stmt.setString(8, student.getAddress());
+            stmt.setDouble(9, student.getGpa());
+            stmt.setString(10, arrayToString(student.getHobbies()));
+            stmt.setString(11, student.getSelfIntro());
+
+            int result = stmt.executeUpdate();
+            conn.close();
+
+            if (result > 0) {
+                // Retrieve the saved student to display
+                Connection conn2 = DriverManager.getConnection(
+                    "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                String selectSql = "SELECT * FROM STUDENT WHERE STUDENT_ID = ?";
+                PreparedStatement selectStmt = conn2.prepareStatement(selectSql);
+                selectStmt.setString(1, studentId);
+                ResultSet rs = selectStmt.executeQuery();
+
+                if (rs.next()) {
+                    Student savedStudent = new Student();
+                    savedStudent.setId(rs.getInt("ID"));
+                    savedStudent.setFirstName(rs.getString("FIRST_NAME"));
+                    savedStudent.setLastName(rs.getString("LAST_NAME"));
+                    savedStudent.setStudentId(rs.getString("STUDENT_ID"));
+                    savedStudent.setProgram(rs.getString("PROGRAM"));
+                    savedStudent.setEmail(rs.getString("EMAIL"));
+                    savedStudent.setPhone(rs.getString("PHONE"));
+                    savedStudent.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+                    savedStudent.setAddress(rs.getString("ADDRESS"));
+                    savedStudent.setGpa(rs.getDouble("GPA"));
+                    savedStudent.setHobbies(stringToArray(rs.getString("HOBBIES")));
+                    savedStudent.setSelfIntro(rs.getString("SELF_INTRO"));
+
                     request.setAttribute("profile", savedStudent);
                     request.setAttribute("message", "Student profile added successfully!");
                     RequestDispatcher rd = request.getRequestDispatcher("/profile.jsp");
                     rd.forward(request, response);
                 } else {
-                    // Fallback if we can't retrieve the saved student
                     response.sendRedirect("viewProfiles.jsp?success=Student profile added successfully!");
                 }
+                conn2.close();
             } else {
                 request.setAttribute("error", "Failed to save student to database. Please try again.");
                 preserveFormData(request, firstName, lastName, studentId, program, email,
@@ -172,5 +206,26 @@ public class AddStudentServlet extends HttpServlet {
 
     private static String safe(String s) {
         return s == null ? null : s.trim();
+    }
+
+    /** Helper method to convert array to comma-separated string */
+    private static String arrayToString(String[] array) {
+        if (array == null || array.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) sb.append(',');
+            sb.append(array[i]);
+        }
+        return sb.toString();
+    }
+
+    /** Helper method to convert comma-separated string to array */
+    private static String[] stringToArray(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return new String[0];
+        }
+        return str.split(",");
     }
 }
