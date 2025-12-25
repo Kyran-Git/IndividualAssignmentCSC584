@@ -6,35 +6,29 @@ import java.util.List;
 
 /**
  * StudentDAO - Data Access Object for managing Student database operations.
- * @author nikla
- * @version 1.0
- * @since 2025-12-25
  */
 public class StudentDAO {
 
     private static final String DB_URL = "jdbc:derby://localhost:1527/studentProfiles";
-    private static final String DB_USER = "app";
-    private static final String DB_PASSWORD = "app";
+    private static final String DB_USER = "APP";
+    private static final String DB_PASSWORD = "APP";
     private static final String DRIVER = "org.apache.derby.jdbc.ClientDriver";
 
     static {
         try {
             Class.forName(DRIVER);
         } catch (ClassNotFoundException e) {
+            // Driver not found; connection attempts will fail. Ensure derbyclient.jar is on classpath.
             e.printStackTrace();
         }
     }
 
-    /**
-     * Get a database connection
-     */
+    /** Get a database connection */
     private static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
-    /**
-     * Insert a new student into the database
-     */
+    /** Insert a new student into the database */
     public static boolean insertStudent(Student student) {
         String sql = "INSERT INTO STUDENT (FIRST_NAME, LAST_NAME, STUDENT_ID, PROGRAM, EMAIL, " +
                      "PHONE, DATE_OF_BIRTH, ADDRESS, GPA, HOBBIES, SELF_INTRO) " +
@@ -63,9 +57,7 @@ public class StudentDAO {
         }
     }
 
-    /**
-     * Get student by ID (primary key)
-     */
+    /** Get student by ID (primary key) */
     public static Student getStudentById(int id) {
         String sql = "SELECT * FROM STUDENT WHERE ID = ?";
 
@@ -84,9 +76,7 @@ public class StudentDAO {
         return null;
     }
 
-    /**
-     * Get student by Student ID (unique identifier like S12345)
-     */
+    /** Get student by Student ID (unique identifier like S12345) */
     public static Student getStudentByStudentId(String studentId) {
         String sql = "SELECT * FROM STUDENT WHERE STUDENT_ID = ?";
 
@@ -105,11 +95,9 @@ public class StudentDAO {
         return null;
     }
 
-    /**
-     * Get all students from the database
-     */
+    /** Get all students from the database */
     public static List<Student> getAllStudents() {
-        List<Student> students = new ArrayList<>();
+        List<Student> students = new ArrayList<Student>();
         String sql = "SELECT * FROM STUDENT ORDER BY ID";
 
         try (Connection conn = getConnection();
@@ -125,11 +113,9 @@ public class StudentDAO {
         return students;
     }
 
-    /**
-     * Search students by name (searches both first and last name)
-     */
+    /** Search students by name (searches both first and last name) */
     public static List<Student> searchByName(String name) {
-        List<Student> students = new ArrayList<>();
+        List<Student> students = new ArrayList<Student>();
         String sql = "SELECT * FROM STUDENT WHERE UPPER(FIRST_NAME) LIKE ? OR UPPER(LAST_NAME) LIKE ? ORDER BY LAST_NAME, FIRST_NAME";
 
         try (Connection conn = getConnection();
@@ -149,11 +135,9 @@ public class StudentDAO {
         return students;
     }
 
-    /**
-     * Search students by student ID
-     */
+    /** Search students by student ID */
     public static List<Student> searchByStudentId(String studentId) {
-        List<Student> students = new ArrayList<>();
+        List<Student> students = new ArrayList<Student>();
         String sql = "SELECT * FROM STUDENT WHERE UPPER(STUDENT_ID) LIKE ? ORDER BY STUDENT_ID";
 
         try (Connection conn = getConnection();
@@ -172,11 +156,9 @@ public class StudentDAO {
         return students;
     }
 
-    /**
-     * Filter students by program
-     */
+    /** Filter students by program */
     public static List<Student> filterByProgram(String program) {
-        List<Student> students = new ArrayList<>();
+        List<Student> students = new ArrayList<Student>();
         String sql = "SELECT * FROM STUDENT WHERE UPPER(PROGRAM) LIKE ? ORDER BY PROGRAM, LAST_NAME, FIRST_NAME";
 
         try (Connection conn = getConnection();
@@ -194,11 +176,9 @@ public class StudentDAO {
         return students;
     }
 
-    /**
-     * Filter students by hobby
-     */
+    /** Filter students by hobby */
     public static List<Student> filterByHobby(String hobby) {
-        List<Student> students = new ArrayList<>();
+        List<Student> students = new ArrayList<Student>();
         String sql = "SELECT * FROM STUDENT WHERE UPPER(HOBBIES) LIKE ? ORDER BY LAST_NAME, FIRST_NAME";
 
         try (Connection conn = getConnection();
@@ -216,9 +196,7 @@ public class StudentDAO {
         return students;
     }
 
-    /**
-     * Update a student
-     */
+    /** Update a student */
     public static boolean updateStudent(int id, Student student) {
         String sql = "UPDATE STUDENT SET FIRST_NAME=?, LAST_NAME=?, STUDENT_ID=?, PROGRAM=?, EMAIL=?, " +
                      "PHONE=?, DATE_OF_BIRTH=?, ADDRESS=?, GPA=?, HOBBIES=?, SELF_INTRO=? WHERE ID=?";
@@ -247,9 +225,7 @@ public class StudentDAO {
         }
     }
 
-    /**
-     * Delete a student
-     */
+    /** Delete a student */
     public static boolean deleteStudent(int id) {
         String sql = "DELETE FROM STUDENT WHERE ID = ?";
 
@@ -265,9 +241,7 @@ public class StudentDAO {
         }
     }
 
-    /**
-     * Helper method to map ResultSet to Student object
-     */
+    /** Helper method to map ResultSet to Student object */
     private static Student mapResultSetToStudent(ResultSet rs) throws SQLException {
         Student student = new Student();
         student.setId(rs.getInt("ID"));
@@ -285,19 +259,21 @@ public class StudentDAO {
         return student;
     }
 
-    /**
-     * Helper method to convert array to comma-separated string
-     */
+    /** Helper method to convert array to comma-separated string */
     private static String arrayToString(String[] array) {
         if (array == null || array.length == 0) {
             return "";
         }
-        return String.join(",", array);
+        // Avoid Java 8-only APIs in JSP-compiled environments
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) sb.append(',');
+            sb.append(array[i]);
+        }
+        return sb.toString();
     }
 
-    /**
-     * Helper method to convert comma-separated string to array
-     */
+    /** Helper method to convert comma-separated string to array */
     private static String[] stringToArray(String str) {
         if (str == null || str.trim().isEmpty()) {
             return new String[0];
