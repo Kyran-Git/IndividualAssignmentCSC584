@@ -1,8 +1,8 @@
 package com.IA.view;
 
 import com.IA.model.Student;
-import com.IA.model.StudentDAO;
 import java.io.IOException;
+import java.sql.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,9 +30,30 @@ public class EditDeleteStudentServlet extends HttpServlet {
 
         try {
             int id = Integer.parseInt(studentIdStr);
-            Student student = StudentDAO.getStudentById(id);
 
-            if (student != null) {
+            // Get student by ID from database
+            Connection conn = DriverManager.getConnection(
+                "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+            String sql = "SELECT * FROM STUDENT WHERE ID = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                Student student = new Student();
+                student.setId(rs.getInt("ID"));
+                student.setFirstName(rs.getString("FIRST_NAME"));
+                student.setLastName(rs.getString("LAST_NAME"));
+                student.setStudentId(rs.getString("STUDENT_ID"));
+                student.setProgram(rs.getString("PROGRAM"));
+                student.setEmail(rs.getString("EMAIL"));
+                student.setPhone(rs.getString("PHONE"));
+                student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+                student.setAddress(rs.getString("ADDRESS"));
+                student.setGpa(rs.getDouble("GPA"));
+                student.setHobbies(stringToArray(rs.getString("HOBBIES")));
+                student.setSelfIntro(rs.getString("SELF_INTRO"));
+
                 request.setAttribute("student", student);
                 request.setAttribute("isEdit", true);
                 RequestDispatcher rd = request.getRequestDispatcher("/form.jsp");
@@ -40,8 +61,12 @@ public class EditDeleteStudentServlet extends HttpServlet {
             } else {
                 response.sendRedirect("ListStudent?error=Student not found");
             }
+            conn.close();
         } catch (NumberFormatException e) {
             response.sendRedirect("ListStudent?error=Invalid student ID");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect("ListStudent?error=Database error: " + e.getMessage());
         }
     }
 
@@ -64,10 +89,24 @@ public class EditDeleteStudentServlet extends HttpServlet {
             int studentId = Integer.parseInt(studentIdStr);
 
             if ("delete".equalsIgnoreCase(action)) {
-                if (StudentDAO.deleteStudent(studentId)) {
-                    response.sendRedirect("ListStudent?success=Student profile deleted successfully!");
-                } else {
-                    response.sendRedirect("ListStudent?error=Failed to delete student");
+                // Delete student from database
+                try {
+                    Connection conn = DriverManager.getConnection(
+                        "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                    String sql = "DELETE FROM STUDENT WHERE ID = ?";
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    pstmt.setInt(1, studentId);
+                    int result = pstmt.executeUpdate();
+                    conn.close();
+
+                    if (result > 0) {
+                        response.sendRedirect("ListStudent?success=Student profile deleted successfully!");
+                    } else {
+                        response.sendRedirect("ListStudent?error=Failed to delete student");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    response.sendRedirect("ListStudent?error=Database error: " + e.getMessage());
                 }
             } else if ("update".equalsIgnoreCase(action)) {
                 // Personal Information
@@ -91,8 +130,37 @@ public class EditDeleteStudentServlet extends HttpServlet {
                 if (isBlank(firstName) || isBlank(lastName) || isBlank(studentIdValue) ||
                     isBlank(program) || isBlank(email)) {
                     request.setAttribute("error", "Please fill in all required fields (marked with *)");
-                    Student student = StudentDAO.getStudentById(studentId);
-                    request.setAttribute("student", student);
+
+                    // Get student by ID from database
+                    try {
+                        Connection conn = DriverManager.getConnection(
+                            "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                        String sql = "SELECT * FROM STUDENT WHERE ID = ?";
+                        PreparedStatement pstmt = conn.prepareStatement(sql);
+                        pstmt.setInt(1, studentId);
+                        ResultSet rs = pstmt.executeQuery();
+
+                        if (rs.next()) {
+                            Student student = new Student();
+                            student.setId(rs.getInt("ID"));
+                            student.setFirstName(rs.getString("FIRST_NAME"));
+                            student.setLastName(rs.getString("LAST_NAME"));
+                            student.setStudentId(rs.getString("STUDENT_ID"));
+                            student.setProgram(rs.getString("PROGRAM"));
+                            student.setEmail(rs.getString("EMAIL"));
+                            student.setPhone(rs.getString("PHONE"));
+                            student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+                            student.setAddress(rs.getString("ADDRESS"));
+                            student.setGpa(rs.getDouble("GPA"));
+                            student.setHobbies(stringToArray(rs.getString("HOBBIES")));
+                            student.setSelfIntro(rs.getString("SELF_INTRO"));
+                            request.setAttribute("student", student);
+                        }
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
                     request.setAttribute("isEdit", true);
                     RequestDispatcher rd = request.getRequestDispatcher("/form.jsp");
                     rd.forward(request, response);
@@ -114,8 +182,37 @@ public class EditDeleteStudentServlet extends HttpServlet {
                         dateOfBirth = java.sql.Date.valueOf(dobStr);
                     } catch (IllegalArgumentException e) {
                         request.setAttribute("error", "Invalid date format for Date of Birth.");
-                        Student student = StudentDAO.getStudentById(studentId);
-                        request.setAttribute("student", student);
+
+                        // Get student by ID from database
+                        try {
+                            Connection conn = DriverManager.getConnection(
+                                "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                            String sql = "SELECT * FROM STUDENT WHERE ID = ?";
+                            PreparedStatement pstmt = conn.prepareStatement(sql);
+                            pstmt.setInt(1, studentId);
+                            ResultSet rs = pstmt.executeQuery();
+
+                            if (rs.next()) {
+                                Student student = new Student();
+                                student.setId(rs.getInt("ID"));
+                                student.setFirstName(rs.getString("FIRST_NAME"));
+                                student.setLastName(rs.getString("LAST_NAME"));
+                                student.setStudentId(rs.getString("STUDENT_ID"));
+                                student.setProgram(rs.getString("PROGRAM"));
+                                student.setEmail(rs.getString("EMAIL"));
+                                student.setPhone(rs.getString("PHONE"));
+                                student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+                                student.setAddress(rs.getString("ADDRESS"));
+                                student.setGpa(rs.getDouble("GPA"));
+                                student.setHobbies(stringToArray(rs.getString("HOBBIES")));
+                                student.setSelfIntro(rs.getString("SELF_INTRO"));
+                                request.setAttribute("student", student);
+                            }
+                            conn.close();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+
                         request.setAttribute("isEdit", true);
                         RequestDispatcher rd = request.getRequestDispatcher("/form.jsp");
                         rd.forward(request, response);
@@ -129,8 +226,37 @@ public class EditDeleteStudentServlet extends HttpServlet {
                         gpa = Double.parseDouble(gpaStr);
                         if (gpa < 0 || gpa > 4.0) {
                             request.setAttribute("error", "GPA must be between 0.0 and 4.0.");
-                            Student student = StudentDAO.getStudentById(studentId);
-                            request.setAttribute("student", student);
+
+                            // Get student by ID from database
+                            try {
+                                Connection conn = DriverManager.getConnection(
+                                    "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                                String sql = "SELECT * FROM STUDENT WHERE ID = ?";
+                                PreparedStatement pstmt = conn.prepareStatement(sql);
+                                pstmt.setInt(1, studentId);
+                                ResultSet rs = pstmt.executeQuery();
+
+                                if (rs.next()) {
+                                    Student student = new Student();
+                                    student.setId(rs.getInt("ID"));
+                                    student.setFirstName(rs.getString("FIRST_NAME"));
+                                    student.setLastName(rs.getString("LAST_NAME"));
+                                    student.setStudentId(rs.getString("STUDENT_ID"));
+                                    student.setProgram(rs.getString("PROGRAM"));
+                                    student.setEmail(rs.getString("EMAIL"));
+                                    student.setPhone(rs.getString("PHONE"));
+                                    student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+                                    student.setAddress(rs.getString("ADDRESS"));
+                                    student.setGpa(rs.getDouble("GPA"));
+                                    student.setHobbies(stringToArray(rs.getString("HOBBIES")));
+                                    student.setSelfIntro(rs.getString("SELF_INTRO"));
+                                    request.setAttribute("student", student);
+                                }
+                                conn.close();
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                            }
+
                             request.setAttribute("isEdit", true);
                             RequestDispatcher rd = request.getRequestDispatcher("/form.jsp");
                             rd.forward(request, response);
@@ -138,8 +264,37 @@ public class EditDeleteStudentServlet extends HttpServlet {
                         }
                     } catch (NumberFormatException e) {
                         request.setAttribute("error", "Invalid GPA format.");
-                        Student student = StudentDAO.getStudentById(studentId);
-                        request.setAttribute("student", student);
+
+                        // Get student by ID from database
+                        try {
+                            Connection conn = DriverManager.getConnection(
+                                "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                            String sql = "SELECT * FROM STUDENT WHERE ID = ?";
+                            PreparedStatement pstmt = conn.prepareStatement(sql);
+                            pstmt.setInt(1, studentId);
+                            ResultSet rs = pstmt.executeQuery();
+
+                            if (rs.next()) {
+                                Student student = new Student();
+                                student.setId(rs.getInt("ID"));
+                                student.setFirstName(rs.getString("FIRST_NAME"));
+                                student.setLastName(rs.getString("LAST_NAME"));
+                                student.setStudentId(rs.getString("STUDENT_ID"));
+                                student.setProgram(rs.getString("PROGRAM"));
+                                student.setEmail(rs.getString("EMAIL"));
+                                student.setPhone(rs.getString("PHONE"));
+                                student.setDateOfBirth(rs.getDate("DATE_OF_BIRTH"));
+                                student.setAddress(rs.getString("ADDRESS"));
+                                student.setGpa(rs.getDouble("GPA"));
+                                student.setHobbies(stringToArray(rs.getString("HOBBIES")));
+                                student.setSelfIntro(rs.getString("SELF_INTRO"));
+                                request.setAttribute("student", student);
+                            }
+                            conn.close();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+
                         request.setAttribute("isEdit", true);
                         RequestDispatcher rd = request.getRequestDispatcher("/form.jsp");
                         rd.forward(request, response);
@@ -150,10 +305,38 @@ public class EditDeleteStudentServlet extends HttpServlet {
                 Student student = new Student(studentId, firstName, lastName, studentIdValue, program,
                                             email, phone, dateOfBirth, address, gpa, hobbies, selfIntro);
 
-                if (StudentDAO.updateStudent(studentId, student)) {
-                    response.sendRedirect("ListStudent?success=Student profile updated successfully!");
-                } else {
-                    response.sendRedirect("ListStudent?error=Failed to update student");
+                // Update student in database
+                try {
+                    Connection conn = DriverManager.getConnection(
+                        "jdbc:derby://localhost:1527/studentProfiles", "app", "app");
+                    String sql = "UPDATE STUDENT SET FIRST_NAME=?, LAST_NAME=?, STUDENT_ID=?, PROGRAM=?, EMAIL=?, " +
+                                 "PHONE=?, DATE_OF_BIRTH=?, ADDRESS=?, GPA=?, HOBBIES=?, SELF_INTRO=? WHERE ID=?";
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+
+                    pstmt.setString(1, student.getFirstName());
+                    pstmt.setString(2, student.getLastName());
+                    pstmt.setString(3, student.getStudentId());
+                    pstmt.setString(4, student.getProgram());
+                    pstmt.setString(5, student.getEmail());
+                    pstmt.setString(6, student.getPhone());
+                    pstmt.setDate(7, student.getDateOfBirth());
+                    pstmt.setString(8, student.getAddress());
+                    pstmt.setDouble(9, student.getGpa());
+                    pstmt.setString(10, arrayToString(student.getHobbies()));
+                    pstmt.setString(11, student.getSelfIntro());
+                    pstmt.setInt(12, studentId);
+
+                    int result = pstmt.executeUpdate();
+                    conn.close();
+
+                    if (result > 0) {
+                        response.sendRedirect("ListStudent?success=Student profile updated successfully!");
+                    } else {
+                        response.sendRedirect("ListStudent?error=Failed to update student");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    response.sendRedirect("ListStudent?error=Database error: " + e.getMessage());
                 }
             } else {
                 response.sendRedirect("ListStudent");
@@ -169,6 +352,27 @@ public class EditDeleteStudentServlet extends HttpServlet {
 
     private static String safe(String s) {
         return s == null ? null : s.trim();
+    }
+
+    /** Helper method to convert array to comma-separated string */
+    private static String arrayToString(String[] array) {
+        if (array == null || array.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) sb.append(',');
+            sb.append(array[i]);
+        }
+        return sb.toString();
+    }
+
+    /** Helper method to convert comma-separated string to array */
+    private static String[] stringToArray(String str) {
+        if (str == null || str.trim().isEmpty()) {
+            return new String[0];
+        }
+        return str.split(",");
     }
 }
 
