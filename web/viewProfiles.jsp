@@ -1,15 +1,12 @@
-<%@page contentType="text/html" pageEncoding="UTF-8" import="java.util.*, com.IA.model.ProfileBean"%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.*, com.IA.model.Student, com.IA.model.StudentDAO"%>
 
 <%
-    List<ProfileBean> profiles = (List<ProfileBean>) request.getAttribute("profiles");
-    String searchType = (String) request.getAttribute("searchType");
-    String searchQuery = (String) request.getAttribute("searchQuery");
+    // Retrieve all students from database
+    List<Student> profiles = StudentDAO.getAllStudents();
     String error = request.getParameter("error");
     String success = request.getParameter("success");
-
-    if (profiles == null) {
-        profiles = new ArrayList<>();
-    }
 %>
 
 <!DOCTYPE html>
@@ -17,137 +14,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Profiles</title>
+    <title>All Student Profiles</title>
     <link rel="stylesheet" href="assets/styles.css">
     <style>
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
-        .search-container { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
-        .search-container select, .search-container input { padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; }
-        .search-container button { padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 0.375rem; cursor: pointer; font-weight: 600; }
-        .search-container button:hover { background: #2563eb; }
-        .profile-card { background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1rem; }
-        .profile-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
-        .profile-title { font-size: 1.25rem; font-weight: 600; color: #1f2937; }
-        .profile-meta { color: #6b7280; font-size: 0.875rem; margin: 0.25rem 0; }
-        .profile-actions { display: flex; gap: 0.5rem; }
-        .btn-small { padding: 0.5rem 1rem; font-size: 0.875rem; border: none; border-radius: 0.375rem; cursor: pointer; text-decoration: none; }
-        .btn-edit { background: #3b82f6; color: white; }
-        .btn-edit:hover { background: #2563eb; }
-        .btn-delete { background: #ef4444; color: white; }
-        .btn-delete:hover { background: #dc2626; }
-        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
-        .alert { padding: 1rem; border-radius: 0.375rem; margin-bottom: 1rem; }
-        .alert-error { background: #fee2e2; color: #991b1b; }
-        .alert-success { background: #dcfce7; color: #166534; }
-        .filter-info { color: #6b7280; font-style: italic; margin-bottom: 1rem; }
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        .profiles-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .profile-count {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .profile-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .profile-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        .profile-card-header {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .profile-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        .profile-id {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .profile-detail {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: start;
+        }
+        .detail-icon {
+            margin-right: 0.5rem;
+            color: #3b82f6;
+        }
+        .detail-text {
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+            margin-right: 0.25rem;
+        }
+        .hobbies-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .hobby-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .hobby-tag {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .intro-text {
+            background: #f9fafb;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+            color: #4b5563;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            max-height: 4.5em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+        }
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-view:hover {
+            background: #2563eb;
+        }
+        .btn-edit {
+            background: #10b981;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #059669;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .empty-state h2 {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        .empty-state p {
+            color: #9ca3af;
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
     <header class="header">
-        <h1>Student Profiles</h1>
-        <a class="btn-secondary" href="Profile">Add New Profile</a>
+        <h1>All Student Profiles</h1>
+        <a class="btn-secondary" href="form.jsp">Add New Student</a>
     </header>
 
     <% if (success != null) { %>
-        <div class="alert alert-success"><%= success %></div>
-    <% } %>
-    <% if (error != null) { %>
-        <div class="alert alert-error"><%= error %></div>
+        <div class="alert alert-success">✓ <%= success %></div>
     <% } %>
 
-    <div class="search-container">
-        <form method="GET" action="ViewProfiles" style="display: flex; gap: 0.5rem; flex-wrap: wrap; width: 100%;">
-            <select name="searchType" style="padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
-                <option value="">-- Select Search Type --</option>
-                <option value="name" <%= "name".equals(searchType) ? "selected" : "" %>>Search by Name</option>
-                <option value="studentId" <%= "studentId".equals(searchType) ? "selected" : "" %>>Search by Student ID</option>
-                <option value="major" <%= "major".equals(searchType) ? "selected" : "" %>>Filter by Major</option>
-            </select>
-            <input type="text" name="searchQuery" placeholder="Enter search term..."
-                   value="<%= searchQuery != null ? searchQuery : "" %>"
-                   style="padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; flex: 1; min-width: 200px;">
-            <button type="submit">Search</button>
-            <a href="ViewProfiles" style="padding: 0.75rem 1.5rem; background: #6b7280; color: white; border-radius: 0.375rem; text-decoration: none; cursor: pointer;">Clear</a>
-        </form>
+    <% if (error != null) { %>
+        <div class="alert alert-error">✗ <%= error %></div>
+    <% } %>
+
+    <div class="profiles-header">
+        <h2 style="margin: 0; color: #1f2937;">
+            <% if (profiles != null && !profiles.isEmpty()) { %>
+                <%= profiles.size() %> Student<%= profiles.size() != 1 ? "s" : "" %> Found
+            <% } else { %>
+                No Students
+            <% } %>
+        </h2>
+        <a href="ListStudent" class="btn btn-secondary" style="text-decoration: none;">Advanced Search & Filter</a>
     </div>
 
-    <% if (searchType != null && searchQuery != null) { %>
-        <div class="filter-info">
-            Searching by <strong><%= searchType %></strong>: "<%= searchQuery %>"
-            <% if (!profiles.isEmpty()) { %>
-                (<%= profiles.size() %> result<%= profiles.size() != 1 ? "s" : "" %> found)
-            <% } else { %>
-                (No results found)
+    <% if (profiles == null || profiles.isEmpty()) { %>
+        <div class="empty-state">
+            <h2>📋 No Student Profiles Found</h2>
+            <p>Get started by adding your first student profile.</p>
+            <a href="form.jsp" class="btn btn-primary">Add First Student</a>
+        </div>
+    <% } else { %>
+        <div class="profiles-grid">
+            <% for (Student profile : profiles) { %>
+                <article class="profile-card">
+                    <div class="profile-card-header">
+                        <div class="profile-name"><%= profile.getFullName() %></div>
+                        <div class="profile-id">ID: <%= profile.getStudentId() %></div>
+                    </div>
+
+                    <div class="profile-detail">
+                        <span class="detail-icon">🎓</span>
+                        <div class="detail-text">
+                            <span class="detail-label">Program:</span>
+                            <%= profile.getProgram() %>
+                        </div>
+                    </div>
+
+                    <div class="profile-detail">
+                        <span class="detail-icon">📧</span>
+                        <div class="detail-text">
+                            <span class="detail-label">Email:</span>
+                            <%= profile.getEmail() %>
+                        </div>
+                    </div>
+
+                    <% if (profile.getPhone() != null && !profile.getPhone().isEmpty()) { %>
+                    <div class="profile-detail">
+                        <span class="detail-icon">📱</span>
+                        <div class="detail-text">
+                            <span class="detail-label">Phone:</span>
+                            <%= profile.getPhone() %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <% if (profile.getGpa() > 0) { %>
+                    <div class="profile-detail">
+                        <span class="detail-icon">📊</span>
+                        <div class="detail-text">
+                            <span class="detail-label">GPA:</span>
+                            <%= String.format("%.2f", profile.getGpa()) %>/4.0
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <% if (profile.getDateOfBirth() != null) { %>
+                    <div class="profile-detail">
+                        <span class="detail-icon">🎂</span>
+                        <div class="detail-text">
+                            <span class="detail-label">DOB:</span>
+                            <%= profile.getDateOfBirth() %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <% if (profile.getAddress() != null && !profile.getAddress().isEmpty()) { %>
+                    <div class="profile-detail">
+                        <span class="detail-icon">📍</span>
+                        <div class="detail-text">
+                            <span class="detail-label">Address:</span>
+                            <%= profile.getAddress() %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <% if (profile.getHobbies() != null && profile.getHobbies().length > 0) { %>
+                    <div class="hobbies-section">
+                        <div class="detail-label" style="font-size: 0.875rem;">Hobbies:</div>
+                        <div class="hobby-tags">
+                            <% for (String hobby : profile.getHobbies()) { %>
+                                <span class="hobby-tag"><%= hobby %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <% if (profile.getSelfIntro() != null && !profile.getSelfIntro().isEmpty()) { %>
+                    <div class="intro-text">
+                        <%= profile.getSelfIntro() %>
+                    </div>
+                    <% } %>
+
+                    <div class="card-actions">
+                        <a href="EditDeleteStudentServlet?id=<%= profile.getId() %>" class="btn-small btn-edit">Edit</a>
+                    </div>
+                </article>
             <% } %>
         </div>
     <% } %>
 
-    <div>
-        <% if (profiles == null || profiles.isEmpty()) { %>
-            <div class="empty-state">
-                <h2>No profiles found</h2>
-                <p>Start by adding a new profile or try a different search.</p>
-                <a class="btn btn-primary" href="Profile" style="display: inline-block; margin-top: 1rem;">Add Profile</a>
-            </div>
-        <% } else { %>
-            <% for (ProfileBean profile : profiles) { %>
-                <div class="profile-card">
-                    <div class="profile-header">
-                        <div>
-                            <div class="profile-title"><%= profile.getFirstName() %> <%= profile.getLastName() %></div>
-                            <div class="profile-meta">Student ID: <%= profile.getStudentId() %></div>
-                            <div class="profile-meta">Email: <%= profile.getEmail() %></div>
-                            <% if (profile.getPhone() != null && !profile.getPhone().isEmpty()) { %>
-                                <div class="profile-meta">Phone: <%= profile.getPhone() %></div>
-                            <% } %>
-                            <div class="profile-meta">Major: <%= profile.getMajor() %></div>
-                            <% if (profile.getGpa() > 0) { %>
-                                <div class="profile-meta">GPA: <%= String.format("%.2f", profile.getGpa()) %></div>
-                            <% } %>
-                            <% if (profile.getDateOfBirth() != null) { %>
-                                <div class="profile-meta">DOB: <%= profile.getDateOfBirth() %></div>
-                            <% } %>
-                            <% if (profile.getAddress() != null && !profile.getAddress().isEmpty()) { %>
-                                <div class="profile-meta">Address: <%= profile.getAddress() %></div>
-                            <% } %>
-                        </div>
-                        <div class="profile-actions">
-                            <a href="EditDeleteProfile?id=<%= profile.getId() %>" class="btn-small btn-edit">Edit</a>
-                            <button onclick="deleteProfile(<%= profile.getId() %>)" class="btn-small btn-delete">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-        <% } %>
-    </div>
-
     <footer class="footer-links" style="margin-top: 3rem;">
-        <a href="index.html">Home</a>
+        <a href="index.html">Home</a> |
+        <a href="form.jsp">Add Student</a> |
+        <a href="ListStudent">Advanced Search</a>
     </footer>
-
-    <script>
-        function deleteProfile(profileId) {
-            if (confirm("Are you sure you want to delete this profile?")) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'EditDeleteProfile';
-
-                const input1 = document.createElement('input');
-                input1.type = 'hidden';
-                input1.name = 'id';
-                input1.value = profileId;
-
-                const input2 = document.createElement('input');
-                input2.type = 'hidden';
-                input2.name = 'action';
-                input2.value = 'delete';
-
-                form.appendChild(input1);
-                form.appendChild(input2);
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
-    </script>
 </body>
 </html>
+
