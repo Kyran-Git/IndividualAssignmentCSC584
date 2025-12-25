@@ -2,42 +2,35 @@
 package com.IA.view;
 
 import com.IA.model.Student;
+import com.IA.model.StudentDAO;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * ListStudentServlet - Displays all registered students in a formatted view.
-
+ * ListStudentServlet - Displays all registered students from database with search/filter support.
+ *
  * URL Mapping: /ListStudent (configured in web.xml)
  * View: displayAll.jsp
  *
  * @author nikla
- * @version 1.0
- * @since 2025-11-18
+ * @version 2.0
+ * @since 2025-12-25
  */
 public class ListStudentServlet extends HttpServlet {
 
     /**
-     * Handles HTTP GET requests to display the list of all students.
-     *
-     * This method performs the following operations:
-     * 1. Retrieves the ServletContext to access shared data
-     * 2. Attempts to retrieve the existing students list from application scope
-     * 3. If no list exists (first access), creates a new thread-safe empty list
-     * 4. Stores the list in request scope so the JSP can access it
-     * 5. Forwards the request to displayAll.jsp for rendering
-     *
-     * The servlet ensures a list always exists in application scope, even if empty,
-     * so the JSP can safely iterate over it without null checks.
-
+     * Handles HTTP GET requests to display the list of students.
+     * Supports search and filter operations:
+     * - Search by name
+     * - Search by student ID
+     * - Filter by program
+     * - Filter by hobby
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -46,31 +39,52 @@ public class ListStudentServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        // ===== RETRIEVE STUDENT LIST FROM APPLICATION SCOPE =====
-        // Get the ServletContext which holds app-wide shared data
-        ServletContext app = getServletContext();
+        // Get search parameters
+        String searchType = request.getParameter("searchType");
+        String searchQuery = request.getParameter("searchQuery");
 
-        // Attempt to retrieve the students list from servlet context
-        @SuppressWarnings("unchecked")
-        List<Student> list = (List<Student>) app.getAttribute("students");
+        List<Student> students = new ArrayList<>();
 
-        // ===== INITIALIZE LIST IF IT DOESN'T EXIST =====
-        // If this is the first time accessing the list create a new thread-safe synchronized list
-        if (list == null) {
-            // This prevents concurrent (same time) modification issues when multiple users access it
-            list = Collections.synchronizedList(new ArrayList<Student>());
+        try {
+            // Perform search/filter based on parameters
+            if (searchType != null && searchQuery != null &&
+                !searchType.trim().isEmpty() && !searchQuery.trim().isEmpty()) {
 
-            // Store the new list in servlet context for future requests
-            app.setAttribute("students", list);
+                searchQuery = searchQuery.trim();
+
+                switch (searchType.toLowerCase()) {
+                    case "name":
+                        students = StudentDAO.searchByName(searchQuery);
+                        break;
+                    case "studentid":
+                        students = StudentDAO.searchByStudentId(searchQuery);
+                        break;
+                    case "program":
+                        students = StudentDAO.filterByProgram(searchQuery);
+                        break;
+                    case "hobby":
+                        students = StudentDAO.filterByHobby(searchQuery);
+                        break;
+                    default:
+                        students = StudentDAO.getAllStudents();
+                }
+
+                // Store search parameters for display
+                request.setAttribute("searchType", searchType);
+                request.setAttribute("searchQuery", searchQuery);
+            } else {
+                // No search - get all students
+                students = StudentDAO.getAllStudents();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error retrieving students: " + e.getMessage());
         }
 
-        // ===== FORWARD TO JSP FOR RENDERING =====
-        // Place the list in request scope/servlet context so the JSP can access it
-        // The JSP will read over this list to display student cards
-        request.setAttribute("students", list);
+        // Place the list in request scope so the JSP can access it
+        request.setAttribute("students", students);
 
         // Forward to the JSP page that renders the student list
-        // Using forward (not redirect) preserves the request attributes
         RequestDispatcher rd = request.getRequestDispatcher("/displayAll.jsp");
         rd.forward(request, response);
     }
@@ -86,6 +100,6 @@ public class ListStudentServlet extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "ListStudentServlet - Retrieves and displays all registered students";
+        return "ListStudentServlet - Retrieves and displays students from database with search/filter support";
     }
 }
