@@ -13,8 +13,8 @@ import java.util.List;
 public class StudentDAO {
 
     private static final String DB_URL = "jdbc:derby://localhost:1527/studentProfiles";
-    private static final String DB_USER = "APP";
-    private static final String DB_PASSWORD = "APP";
+    private static final String DB_USER = "app";
+    private static final String DB_PASSWORD = "app";
     private static final String DRIVER = "org.apache.derby.jdbc.ClientDriver";
 
     static {
