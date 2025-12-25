@@ -8,6 +8,18 @@
         <servlet-name>AddStudentServlet</servlet-name>
         <servlet-class>com.IA.view.AddStudentServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ProfileServlet</servlet-name>
+        <servlet-class>com.IA.view.ProfileServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ViewProfilesServlet</servlet-name>
+        <servlet-class>com.IA.view.ViewProfilesServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EditDeleteProfileServlet</servlet-name>
+        <servlet-class>com.IA.view.EditDeleteProfileServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ListStudent</servlet-name>
         <url-pattern>/ListStudent</url-pattern>
@@ -15,6 +27,18 @@
     <servlet-mapping>
         <servlet-name>AddStudentServlet</servlet-name>
         <url-pattern>/AddStudentServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ProfileServlet</servlet-name>
+        <url-pattern>/Profile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ViewProfilesServlet</servlet-name>
+        <url-pattern>/ViewProfiles</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EditDeleteProfileServlet</servlet-name>
+        <url-pattern>/EditDeleteProfile</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
