@@ -15,7 +15,8 @@
     String success = request.getParameter("success");
 
     if (students == null) {
-        students = new ArrayList<>();
+        // Avoid diamond operator to support older JSP compiler (source 1.5)
+        students = new ArrayList<Student>();
     }
 %>
 
@@ -124,7 +125,6 @@
           <%
             // Loop through each student and render a card
             for (Student s : students) {
-              String hobbies = (s.getHobbies() == null) ? "" : String.join(", ", s.getHobbies());
           %>
 
             <!-- Individual Student Card -->
