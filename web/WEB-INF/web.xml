@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
-    <!-- Student Profile Management System Servlets -->
+
     <servlet>
         <servlet-name>ListStudent</servlet-name>
         <servlet-class>com.IA.view.ListStudentServlet</servlet-class>
@@ -13,8 +13,6 @@
         <servlet-name>EditDeleteStudentServlet</servlet-name>
         <servlet-class>com.IA.view.EditDeleteStudentServlet</servlet-class>
     </servlet>
-
-    <!-- Servlet Mappings -->
     <servlet-mapping>
         <servlet-name>ListStudent</servlet-name>
         <url-pattern>/ListStudent</url-pattern>
